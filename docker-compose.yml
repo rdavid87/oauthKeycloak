@@ -1,0 +1,131 @@
+version: "3.9"
+services:
+  mongodb:
+    image: mongo
+    container_name: "mongodb"
+    command: mongod --auth
+    environment:
+      - MONGO_INITDB_DATABASE=admin
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    volumes:
+      - type: volume
+        source: mongodb_data_volume
+        target: /data/db
+      - ./config/mongo-init.js:/config/mongo-init.js:ro
+    ports:
+      - "27017:27017"
+    networks:
+      - default
+    restart: always
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    container_name: "postgres"
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - '5439:5439'
+    networks:
+      - default
+    volumes:
+      - db:/var/lib/postgresql/data
+  keycloak:
+    depends_on:
+      - postgres
+    container_name: "keycloak"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      IMPORT_FILES: config/keycloak/*
+      KC_DB: postgres
+      KC_DB_PASSWORD: 1234
+      KC_DB_USERNAME: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: -Dkeycloak.profile.feature.upload_scripts=enabled
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+    networks:
+      - default
+  eureka-server:
+    image: eureka-server
+    container_name: "eureka-server"
+    ports:
+      - "8761:8761"
+    depends_on:
+      - keycloak
+    restart: always
+  gateway-api:
+    image: gateway-api
+    container_name: "gateway-api"
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      KEYCLOAK_URL: http://keycloak:8082/
+      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      REDIRECT_URI: http://gateway-api:8080/login/oauth2/code/keycloak
+    depends_on:
+      - eureka-server
+    restart: always
+  movie-service:
+    image: movie-service
+    container_name: "movie-service"
+    ports:
+      - "8086:8086"
+    expose:
+      - "8086"
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      KEYCLOAK_URL: http://keycloak:8082/
+      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      REDIRECT_URI: http://movie-service
+      MONGO_URL: mongodb
+    depends_on:
+      - eureka-server
+    restart: always
+  user-service:
+    image: user-service
+    container_name: "user-service"
+    ports:
+      - "8087:8087"
+    expose:
+      - "8087"
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      KEYCLOAK_URL: http://keycloak:8082/
+      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      REDIRECT_URI: http://user-service
+    depends_on:
+      - eureka-server
+    restart: always
+  bill-service:
+    image: bill-service
+    container_name: "bill-service"
+    ports:
+      - "8088:8088"
+    expose:
+      - "8088"
+    environment:
+      EUREKA_URL: http://eureka-server:8761/eureka
+      KEYCLOAK_URL: http://keycloak:8082/
+      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      REDIRECT_URI: http://bill-service
+      URL_USER_SERVICE: http://user-service:8087
+    depends_on:
+      - eureka-server
+    restart: always
+volumes:
+  mongodb_data_volume:
+    external: false
+  data: { }
+  db:
+networks:
+  default:
+    name: red-local-keycloak

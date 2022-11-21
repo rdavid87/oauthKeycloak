@@ -1,0 +1,81 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+spring:
+  application:
+    name: gateway-api
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: ${ISSUER_URI:http://localhost:8082/realms/digital-media}
+        registration:
+          api-gateway:
+            provider: keycloak
+            client-id: api-gateway
+            client-secret: 5cfUzBKCYm8gjP71S0r1zY7MKlIRURxf
+            authorization-grant-type: authorization_code
+            redirect-uri: ${REDIRECT_URI:http://localhost:8080/login/oauth2/code/keycloak}
+  cloud:
+    config:
+      fail-fast: true
+      discovery:
+        enabled: true
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      default-filters:
+        - TokenRelay
+        #- name: LoggingFilter
+      routes:
+        - id: billsRoute
+          uri: lb://bill-service
+          predicates:
+            - Path=/bills/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: billService
+                fallbackUri: forward:/fallback/bills
+        - id: moviesRoute
+          uri: lb://movie-service
+          predicates:
+            - Path=/movies/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: movieService
+                fallbackUri: forward:/fallback/movies
+        - id: usersRoute
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userService
+                fallbackUri: forward:/fallback/users
+
+#Actuator: Monitoreando la salud de nuestros microservicios
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+info:
+  app:
+    name: Gateway Api
+    description: Enrutamiento, limitaci�n de velocidad, facturaci�n, monitoreo, autenticaci�n, composici�n de API, pol�ticas, alertas y seguridad.
+    version: 1.0.0
