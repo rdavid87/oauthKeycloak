@@ -27,27 +27,29 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
-      - '5439:5439'
+      - "5433:5432"
     networks:
       - default
     volumes:
-      - db:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
   keycloak:
     depends_on:
       - postgres
     container_name: "keycloak"
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      IMPORT_FILES: config/keycloak/*
-      KC_DB: postgres
-      KC_DB_PASSWORD: 1234
-      KC_DB_USERNAME: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: postgres
+      DB_PASSWORD: 1234
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_LOGLEVEL: DEBUG
+      ROOT_LOGLEVEL: DEBUG
     image: quay.io/keycloak/keycloak:18.0.0
     command: -Dkeycloak.profile.feature.upload_scripts=enabled
     ports:
-      - "8082:8080"
+      - "8081:8080"
     restart: unless-stopped
     networks:
       - default
@@ -68,8 +70,8 @@ services:
       - "8080"
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka
-      KEYCLOAK_URL: http://keycloak:8082/
-      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      KEYCLOAK_URL: http://keycloak:8081/
+      ISSUER_URI: http://keycloak:8081/realms/digital-media
       REDIRECT_URI: http://gateway-api:8080/login/oauth2/code/keycloak
     depends_on:
       - eureka-server
@@ -83,8 +85,8 @@ services:
       - "8086"
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka
-      KEYCLOAK_URL: http://keycloak:8082/
-      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      KEYCLOAK_URL: http://keycloak:8081/
+      ISSUER_URI: http://keycloak:8081/realms/digital-media
       REDIRECT_URI: http://movie-service
       MONGO_URL: mongodb
     depends_on:
@@ -99,8 +101,8 @@ services:
       - "8087"
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka
-      KEYCLOAK_URL: http://keycloak:8082/
-      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      KEYCLOAK_URL: http://keycloak:8081/
+      ISSUER_URI: http://keycloak:8081/realms/digital-media
       REDIRECT_URI: http://user-service
     depends_on:
       - eureka-server
@@ -114,8 +116,8 @@ services:
       - "8088"
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka
-      KEYCLOAK_URL: http://keycloak:8082/
-      ISSUER_URI: http://keycloak:8082/realms/digital-media
+      KEYCLOAK_URL: http://keycloak:8081/
+      ISSUER_URI: http://keycloak:8081/realms/digital-media
       REDIRECT_URI: http://bill-service
       URL_USER_SERVICE: http://user-service:8087
     depends_on:
@@ -124,7 +126,7 @@ services:
 volumes:
   mongodb_data_volume:
     external: false
-  data: { }
+  postgres_data: { }
   db:
 networks:
   default:

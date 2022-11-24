@@ -31,7 +31,7 @@ spring:
     name: user-service
   data:
     mongodb:
-      host: localhost
+      host: ${MONGO_URL:localhost}
       port: 27017
       password: root
       username: root

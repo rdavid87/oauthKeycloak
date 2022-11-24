@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 
 public class OAuthFeignConfig {
 
-  public static final String CLIENT_REGISTRATION_ID = "keycloak";
+  public static final String CLIENT_REGISTRATION_ID = "digital-media";
 
   private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
   private final ClientRegistrationRepository clientRegistrationRepository;
