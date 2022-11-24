@@ -5,6 +5,9 @@
 
 El trabajo parcial consistirá en entregar la resolución de las prácticas de clase que afectan al trabajo integrador del sistema de películas online. Recordemos nuestra arquitectura y los microservicios que intervienen en la solución:
 
+![image](https://user-images.githubusercontent.com/37912494/202950528-bfbefa0f-d439-4a50-8f80-03776e1de7ee.png)
+
+
 ## 
 
 ## Levantar con Docker
