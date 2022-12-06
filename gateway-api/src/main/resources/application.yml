@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9090
 
 eureka:
   client:
@@ -15,14 +15,15 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: ${ISSUER_URI:http://localhost:8082/realms/digital-media}
+            issuer-uri: ${ISSUER_URI:http://localhost:8080/realms/digital-media}
         registration:
           api-gateway:
             provider: keycloak
             client-id: api-gateway
             client-secret: 5cfUzBKCYm8gjP71S0r1zY7MKlIRURxf
             authorization-grant-type: authorization_code
-            redirect-uri: ${REDIRECT_URI:http://localhost:8080/login/oauth2/code/keycloak}
+            redirect-uri: '{baseUrl}/login/oauth2/code/keycloak'            #${REDIRECT_URI:http://localhost:9090/login/oauth2/code/keycloak}
+            scope: openid
   cloud:
     config:
       fail-fast: true
@@ -34,7 +35,6 @@ spring:
           enabled: true
       default-filters:
         - TokenRelay
-        #- name: LoggingFilter
       routes:
         - id: billsRoute
           uri: lb://bill-service
