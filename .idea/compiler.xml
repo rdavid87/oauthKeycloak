@@ -11,7 +11,7 @@
         <module name="eureka-server" />
         <module name="gateway-api" />
       </profile>
-      <profile name="Annotation profile for ms-bills" enabled="true">
+      <profile name="Annotation profile for movies-api" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -29,7 +29,7 @@
       <module name="eureka-server" target="17" />
       <module name="gateway-api" target="17" />
       <module name="movies-api" target="11" />
-      <module name="ms-bills" target="1.8" />
+      <module name="ms-bills" target="11" />
       <module name="users-service" target="11" />
     </bytecodeTargetLevel>
   </component>

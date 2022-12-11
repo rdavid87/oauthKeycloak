@@ -17,6 +17,9 @@ public class OAuth2ResourceServerSecurityConfiguration {
   @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
   private String baseUrl;
 
+  @Value("${app.realm-cert}")
+  private String urlCert;
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(new KeyCloakJwtAuthenticationConverter());
@@ -31,6 +34,6 @@ public class OAuth2ResourceServerSecurityConfiguration {
 
   @Bean
   public JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withJwkSetUri("http://localhost:8082/realms/digital-media/protocol/openid-connect/certs").build();
+    return NimbusJwtDecoder.withJwkSetUri(urlCert).build();
   }
 }

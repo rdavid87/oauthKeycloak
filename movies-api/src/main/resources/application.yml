@@ -19,12 +19,13 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: ${ISSUER_URI:http://localhost:8082/realms/digital-media}
+            issuer-uri: ${ISSUER_URI:http://localhost:8080/realms/digital-media}
+            
         registration:
           microservicios:
             provider: keycloak
             client-id: microservicios
-            client-secret: qvTuJxFNX3W3639ISMmSQjjOdPqWDYAF
+            client-secret: "**********"
             scope: openid
             redirect-uri: ${REDIRECT_URI:http://localhost:8086}
 
@@ -32,6 +33,7 @@ app:
   cors:
     allowed-origins: http://localhost:3000
   realm: digital-media
+  realm-cert: ${CERT_URI:http://localhost:8080/realms/digital-media/protocol/openid-connect/certs}
 
 management:
   endpoints:

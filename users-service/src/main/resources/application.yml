@@ -23,6 +23,7 @@ management:
 
 app:
   realm: digital-media
+  realm-cert: ${CERT_URI:http://localhost:8080/realms/digital-media/protocol/openid-connect/certs}
   cors:
     allowed-origins: http://localhost:3000
 
@@ -49,13 +50,13 @@ spring:
           microservicios:
             provider: keycloak
             client-id: microservicios
-            client-secret: qvTuJxFNX3W3639ISMmSQjjOdPqWDYAF
+            client-secret: "**********"
             scope: openid
             redirect-uri: ${REDIRECT_URI:http://localhost:8087}
 
 dh:
   keycloak:
     realm: ${app.realm}
-    serverUrl: http://localhost:8082/
+    serverUrl: ${KEYCLOAK_URL:http://localhost:8080/}
     clientId: microservicios
-    clientSecret: qvTuJxFNX3W3639ISMmSQjjOdPqWDYAF
+    clientSecret: "**********"

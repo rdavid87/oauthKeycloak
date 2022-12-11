@@ -35,6 +35,8 @@ services:
   keycloak:
     depends_on:
       - postgres
+    build:
+        dockerfile: ./config/Dockerfile
     container_name: "keycloak"
     environment:
       KEYCLOAK_ADMIN: admin
@@ -46,14 +48,10 @@ services:
       DB_USER: postgres
       DB_PASSWORD: 1234
       ROOT_LOGLEVEL: DEBUG
-    image: quay.io/keycloak/keycloak:18.0.0
-    command:
-      - start-dev
-      - --import-realm
-    volumes:
-      - ./config/keycloak/realm-digital-media.json:/opt/keycloak/bin/data/import/main-realm.json
     ports:
       - "8080:8080"
+    expose:
+      - "8080"
     restart: unless-stopped
     networks:
       - local-keycloak
@@ -62,6 +60,8 @@ services:
     container_name: "eureka-server"
     ports:
       - "8761:8761"
+    expose:
+      - "8761"
     depends_on:
       - keycloak
     restart: always
@@ -72,11 +72,13 @@ services:
     container_name: "gateway-api"
     ports:
       - "9090:9090"
+    expose:
+      - "9090"
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka
       KEYCLOAK_URL: http://localhost:8080/
       ISSUER_URI: http://localhost:8080/realms/digital-media
-      REDIRECT_URI: "http://localhost:9090/login/oauth2/code/{registrationId}"
+      REDIRECT_URI: http://keycloak:9090/login/oauth2/code/{registrationId}
     depends_on:
       - eureka-server
     restart: always
@@ -93,7 +95,8 @@ services:
       EUREKA_URL: http://eureka-server:8761/eureka
       KEYCLOAK_URL: http://keycloak:8080/
       ISSUER_URI: http://keycloak:8080/realms/digital-media
-      REDIRECT_URI: http://movie-service
+      CERT_URI: http://keycloak:8080/realms/digital-media/protocol/openid-connect/certs
+      REDIRECT_URI: http://movie-service:8086
       MONGO_URL: mongodb
     depends_on:
       - eureka-server
@@ -111,7 +114,8 @@ services:
       EUREKA_URL: http://eureka-server:8761/eureka
       KEYCLOAK_URL: http://keycloak:8080/
       ISSUER_URI: http://keycloak:8080/realms/digital-media
-      REDIRECT_URI: http://user-service
+      CERT_URI: http://keycloak:8080/realms/digital-media/protocol/openid-connect/certs
+      REDIRECT_URI: http://user-service:8087
     depends_on:
       - eureka-server
     restart: always
@@ -128,7 +132,8 @@ services:
       EUREKA_URL: http://eureka-server:8761/eureka
       KEYCLOAK_URL: http://keycloak:8080/
       ISSUER_URI: http://keycloak:8080/realms/digital-media
-      REDIRECT_URI: http://bill-service
+      CERT_URI: http://keycloak:8080/realms/digital-media/protocol/openid-connect/certs
+      REDIRECT_URI: http://bill-service:8088
       URL_USER_SERVICE: http://user-service:8087
     depends_on:
       - eureka-server

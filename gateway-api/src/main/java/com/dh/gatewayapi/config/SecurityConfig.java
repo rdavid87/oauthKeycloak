@@ -10,36 +10,17 @@ import org.springframework.security.web.server.authentication.logout.ServerLogou
 
 @Configuration
 public class SecurityConfig {
-
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, ServerLogoutSuccessHandler handler) {
+    public SecurityWebFilterChain springSecurityFilterChain (ServerHttpSecurity http) {
+
         http
-                .authorizeExchange()
-                .pathMatchers("/actuator/**", "/","/logout.html")
-                .permitAll()
-                .and()
-                .authorizeExchange()
-                .anyExchange()
-                .authenticated()
-                .and()
-                .oauth2Login() // to redirect to oauth2 login page.
-                .and()
-                .logout()
-                .logoutSuccessHandler(handler)
-        ;
+            .authorizeExchange()
+            .anyExchange()
+            .authenticated()
+            .and()
+            .oauth2Login(); // to redirect to oauth2 login page.
 
         return http.build();
-    }
-
-    @Bean
-    public ServerLogoutSuccessHandler keycloakLogoutSuccessHandler(ReactiveClientRegistrationRepository repository) {
-
-        OidcClientInitiatedServerLogoutSuccessHandler oidcLogoutSuccessHandler =
-                new OidcClientInitiatedServerLogoutSuccessHandler(repository);
-
-        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/logout.html");
-
-        return oidcLogoutSuccessHandler;
     }
 
 }

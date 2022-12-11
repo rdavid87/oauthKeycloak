@@ -34,15 +34,16 @@ spring:
           microservicios:
             provider: keycloak
             client-id: microservicios
-            client-secret: qvTuJxFNX3W3639ISMmSQjjOdPqWDYAF
+            client-secret: "**********"
             scope: openid
             redirect-uri: ${REDIRECT_URI:http://localhost:8088}
 
 app:
-  cors:
-    allowed-origins: http://localhost:3000
-  realm: digital-media
-  url-user-service: ${URL_USER_SERVICE:http://localhost:8087}
+    cors:
+        allowed-origins: http://localhost:3000
+    realm: digital-media
+    realm-cert: ${CERT_URI:http://localhost:8080/realms/digital-media/protocol/openid-connect/certs}
+    url-user-service: ${URL_USER_SERVICE:http://localhost:8087}
 
 management:
   endpoints:
